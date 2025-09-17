@@ -21,6 +21,7 @@ while True:
     print("2 - Editar informações do(a) candidato(a)    |   1 - Inscrever funcionário(a)        ")
     print("3 - Confirmar pagamento do(a) candidato(a)   |   1 - Inscrever funcionário(a)        ")
     print("4 - Visualizar lista de candidatos           |   1 - Visualizar lista de funcionários")
+    print("0 - Sair                                     |                                       ")
     print("                                                                                     ")
 
     escolha = input("Escolha: ")
