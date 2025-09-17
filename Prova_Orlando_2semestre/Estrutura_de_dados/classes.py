@@ -1,3 +1,22 @@
+# Função para verificar se uma string contem apenas letras e espaços
+def is_alpha_space(text):
+    if not text:
+        return False
+    for char in text:
+        if not ('a' <= char.lower() <= 'z' or char == ' '):
+            return False
+    return True
+
+# Outra função para verificar se uma string contém apenas números
+def is_digit(text):
+    if not text:
+        return False
+    for char in text:
+        if not '0' <= char <= '9':
+            return False
+    return True
+
+# Classe para o candidato
 class Candidato:
     def __init__(self, numero_inscricao, nome, cpf, curso, pago=False):
         self.numero_inscricao = numero_inscricao
