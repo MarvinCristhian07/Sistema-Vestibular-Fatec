@@ -84,6 +84,9 @@ class ListaCandidatos:
 
         while True:
             cpf = input("Entre com o CPF do candidato (apenas números): ").strip()
+            if cpf.len() == 11:
+                break
+            print("⚠️ O CPF deve ter exatamente 11 dígitos!")
             if is_digit(cpf):
                 break
             print("⚠️ Por favor, preencha o CPF com apenas números!")
