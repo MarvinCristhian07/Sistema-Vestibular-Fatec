@@ -175,10 +175,38 @@ class ListaCandidatos:
             if cpf:
                 candidato.cpf = cpf
             if curso and curso != candidato.curso:
+                self.remover_candidato_do_curso(candidato.curso, candidato)
                 candidato.curso = curso
+                self.adicionar_candidato_ao_curso(curso, candidato)
             print(f"\nDados do candidato {numero_inscricao} atualizados com sucesso!")
         else:
             print("\nCandidato não encontrado.")
+
+    def remover_candidato_do_curso(self, curso_nome, candidato_alvo):
+        atual_curso = self.lista_cursos
+        while atual_curso:
+            if atual_curso.curso == curso_nome:
+                atual_candidato = atual_curso.lista_candidatos
+                anterior = None
+                while atual_candidato:
+                    if atual_candidato.candidato == candidato_alvo:
+                        if anterior:
+                            anterior.proximo = atual_candidato.proximo
+                        else:
+                            atual_curso.lista_candidatos = atual_candidato.proximo
+                        atual_curso.total_candidatos -= 1
+                        return True
+                    anterior = atual_candidato
+                    atual_candidato = atual_candidato.proximo
+                atual_curso = atual_curso.proximo
+            return False
+
+    def executar_pagamento(self):
+        try:
+            numero = int(input("Digite o número de inscrição do candidato: "))
+            self.efetivar_pagamento(numero)
+        except ValueError:
+            print("⚠️ Entrada inválida. Por favor, digite um número de inscrição válido.")
     
     def efetivar_pagamento(self, numero_inscricao):
         candidato = self.buscar_candidato(numero_inscricao)
@@ -187,13 +215,49 @@ class ListaCandidatos:
             print(f"\nPagamento do candidato {numero_inscricao} registrado com sucesso!")
         else:
             print("\nCandidato não encontrado.")
+
+    def _bubble_sort_list(self, head):
+        if not head:
+            return None
+
+        swapped = True
+        while swapped:
+            swapped = False
+            p = head
+            while p and p.proximo:
+                if p.candidato.nome.lower() > p.proximo.candidato.nome.lower():
+                    # Trocar os dados dos nós
+                    p.candidato, p.proximo.candidato = p.proximo.candidato, p.candidato
+                    swapped = True
+                p = p.proximo
+            return head
     
     def listar_candidatos(self):
-        if not self.inicio:
-            print(f"\nNenhum candidato inscrito.")
+        if not self.lista_cursos:
+            print("\nNenhum candidato inscrito.")
             return
-        atual = self.inicio
+
         print("\n==== Lista de Candidatos ====")
-        while atual:
-            print(atual.candidato)
-            atual = atual.proximo
+        print("Unidade: Fatec Rio Claro")
+        print("Vagas por curso: 35\n")
+
+        atual_curso = self.lista_cursos
+        while atual_curso:
+            total_candidatos = atual_curso.total_candidatos
+            vagas = 35
+            relacao = total_candidatos / vagas if vagas > 0 else 0
+
+            print(f"--- Curso: {atual_curso.curso} ---")
+            print(f"Total de candidatos: {total_candidatos}")
+            print(f"Relação candidato/vaga: {relacao:.1f}")
+
+            # Ordenar a lista do curso
+            atual_curso.lista_candidatos = self._bubble_sort_list(atual_curso.lista_candidatos)
+
+            atual_candidato = atual_curso.lista_candidatos
+            while atual_candidato:
+                print(atual_candidato.candidato)
+                atual_candidato = atual_candidato.proximo
+            print("-" * 30)
+
+            atual_curso = atual_curso.proximo
