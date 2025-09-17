@@ -36,30 +36,62 @@ class No:
         self.candidato = candidato
         self.proximo = None
 
+class NoCurso:
+    def __init__(self, curso):
+        self.curso = curso
+        self.total_candidatos = 0
+        self.lista_candidatos = None # Inicio da lista ligada de candidatos do curso
+        self.proximo = None
+
 # Lista ligada para gerenciar os candidatos
 class ListaCandidatos:
     def __init__(self):
         self.inicio = None
         self.total = 0
+        self.lista_cursos = None # Início da lista ligada de cursos
+
+        # Popula a lista ligada de cursos
+        curso_ia = NoCurso("Tecnologia em Inteligência Artificial")
+        curso_esg = NoCurso("Gestão da Sustentabilidade Ambiental e Governança Corporativa (ESG)")
+
+        self.lista_cursos = curso_ia
+        curso_ia.proximo = curso_esg
+    
+    def adicionar_candidato_ao_curso(self, curso_nome, novo_candidato):
+        atual_curso = self.lista_cursos
+        while atual_curso:
+            if atual_curso.curso == curso_nome:
+                novo_no_candidato = No(novo_candidato)
+                if not atual_curso.lista_candidatos:
+                    atual_curso.lista_candidatos = novo_no_candidato
+                else:
+                    ultimo = atual_curso.lista_candidatos
+                    while ultimo.proximo:
+                        ultimo = ultimo.proximo
+                    ultimo.proximo = novo_no_candidato
+                atual_curso.total_candidatos += 1
+                return
+            atual_curso = atual_curso.proximo
         
     def adicionar_candidato(self):
 
         # Coletar os dados do usuário
         while True:
             nome = input("Entre com o nome do candidato: ").strip()
-            if nome != "":
+            if is_alpha_space(nome):
                 break
-            print("⚠️ Por favor, preencha o nome para dar continuidade no processo!")
+            print("⚠️ Por favor, preencha o nome com apenas letras e espaços!")
 
         while True:
-            cpf = input("Entre com o CPF do candidato: ").strip()
-            if cpf != "":
+            cpf = input("Entre com o CPF do candidato (apenas números): ").strip()
+            if is_digit(cpf):
                 break
-            print("⚠️ Por favor, preencha o CPF para dar continuidade no processo!")
+            print("⚠️ Por favor, preencha o CPF com apenas números!")
 
         while True:
             print("\nEscolha a opção de curso desejado: ")
-            print("1 - Tecnologia em Inteligência Artificial\n2 - Gestão da Sustentabilidade Ambiental e Governança Corporativa (ESG)\n")
+            print("1 - Tecnologia em Inteligência Artificial")
+            print("2 - Gestão da Sustentabilidade Ambiental e Governança Corporativa (ESG)")
             opcao = input("Escolha: ").strip()
 
             if opcao == "1":
@@ -74,26 +106,66 @@ class ListaCandidatos:
 
         self.total += 1
         novo_candidato = Candidato(self.total, nome, cpf, curso, pago=False)
-        novo_no = No(novo_candidato)
 
-        # Inserir na lista ligada
-        if self.inicio is None:
-            self.inicio = novo_no
-        else:
-            atual = self.inicio
-            while atual.proximo:
-                atual = atual.proximo
-            atual.proximo = novo_no
+        # Adiciona o candidato à lista ligada do curso correspondente
+        self.adicionar_candidato_ao_curso(curso, novo_candidato)
 
-        print(f"\n✅ Inscrição realizada com sucesso! Número: {self.total}")
+        print(f"✅ Inscrição realizada com sucesso! Número da inscrição: {self.total}")
 
     def buscar_candidato(self, numero_inscricao):
-        atual = self.inicio
-        while atual:
-            if atual.candidato.numero_inscricao == numero_inscricao:
-                return atual.candidato
-            atual = atual.proximo
+        atual_curso = self.lista_cursos
+        while atual_curso:
+            atual_candidato = atual_curso.lista_candidatos
+            while atual_candidato:
+                if atual_candidato.candidato.numero_inscricao == numero_inscricao:
+                    return atual_candidato.candidato
+                atual_candidato = atual_candidato.proximo
+            atual_curso = atual_curso.proximo
         return None
+    
+    def executar_edicao(self):
+        try:
+            numero = int(input("Digite o número da inscrição: "))
+            candidato = self.buscar_candidato(numero)
+            if not candidato:
+                print("\nCandidato não encontrado.")
+                return
+            
+            nome = input(f"Novo nome (atual: {candidato.nome}) - Deixe vazio para não alterar nada: ").strip()
+            if nome and is_alpha_space(nome):
+                print("⚠️ Nome inválido. Apenas letras e espaços são permitidos. Nenhuma alteração foi feita.")
+                nome = None
+            
+            cpf = input(f"Novo CPF (atual: {candidato.cpf}) - Deixe vazio para não alterar: ").strip()
+            if cpf and not is_digit(cpf):
+                print("⚠️ CPF inválido. Apenas números são permitindo. Nenhuma alteração feita.")
+                cpf = None
+
+            curso_antigo = candidato.curso
+            curso_novo = None
+            while True:
+                print("\nNovo curso (atual: {}).".format(curso_antigo))
+                print("1 - Tecnologia em Inteligência Artificial")
+                print("2 - Gestão da Sustentabilidade Ambiental e Governança Corporativa (ESG)")
+                opcao_curso = input("Escolha (Deixe vazio para não alterar): ").strip()
+
+                if not opcao_curso:
+                    break
+                elif opcao_curso == "1":
+                    curso_novo = "Tecnologia em Inteligência Artificial"
+                    break
+                elif opcao_curso == "2":
+                    curso_novo = "Gestão da Sustentabilidade Ambiental e Governança Corporativa (ESG)"
+                    break
+                else:
+                    print("⚠️ Selecione uma opção válida (1 ou 2)!")
+                    continue
+
+            if nome or cpf or curso_novo:
+                self.editar_candidato(numero, nome or None, cpf or None, curso_novo or None)
+
+        except ValueError:
+            print("⚠️ Entrada inválida. Por favor, digite um número de inscrição válido.")
     
     def editar_candidato(self, numero_inscricao, nome=None, cpf=None, curso=None):
         candidato = self.buscar_candidato(numero_inscricao)
@@ -102,7 +174,7 @@ class ListaCandidatos:
                 candidato.nome = nome
             if cpf:
                 candidato.cpf = cpf
-            if curso:
+            if curso and curso != candidato.curso:
                 candidato.curso = curso
             print(f"\nDados do candidato {numero_inscricao} atualizados com sucesso!")
         else:
