@@ -242,12 +242,12 @@ class ListaCandidatos:
 
         print("\n==== Lista de Candidatos ====")
         print("Unidade: Fatec Rio Claro")
-        print("Vagas por curso: 35\n")
+        print("Vagas por curso: 40\n")
 
         atual_curso = self.lista_cursos
         while atual_curso:
             total_candidatos = atual_curso.total_candidatos
-            vagas = 35
+            vagas = 40
             relacao = total_candidatos / vagas if vagas > 0 else 0
 
             print(f"--- Curso: {atual_curso.curso} ---")
@@ -261,6 +261,26 @@ class ListaCandidatos:
             while atual_candidato:
                 print(atual_candidato.candidato)
                 atual_candidato = atual_candidato.proximo
+            print("-" * 30)
+
+            atual_curso = atual_curso.proximo
+
+    def relacao_candidatos_efetivados(self):
+        print("\n--- Relação Candidato/Vaga (apenas efetivados) ---")
+        vagas = 40
+        atual_curso = self.lista_cursos
+        while atual_curso:
+            total_efetivados = 0
+            atual_candidato = atual_curso.lista_candidatos
+            while atual_candidato:
+                if atual_candidato.candidato.pago:
+                    total_efetivados += 1
+                atual_candidato = atual_candidato.proximo
+
+            relacao_efetivados = total_efetivados / vagas if vagas > 0 else 0
+            print(f"Curso: {atual_curso.curso}")
+            print(f"Candidatos efetivados: {total_efetivados}")
+            print(f"Relação candidato/vaga: {relacao_efetivados:.1f}")
             print("-" * 30)
 
             atual_curso = atual_curso.proximo
@@ -284,8 +304,122 @@ class ListaCandidatos:
         print(f"Total de candidatos com inscrição efetivada: {total_efetivados}")
         print(f"Número de salas necessárias (capacidade 30): {salas}")
         return salas
+
+    # Método para gerar lista efetivados
+    def gerar_lista_efetivados(self):
+        lista_efetivados = ListaEfetivados()
+        atual_curso = self.lista_cursos
+        while atual_curso:
+            atual_candidato = atual_curso.lista_candidatos
+            while atual_candidato:
+                if atual_candidato.candidato.pago:
+                    lista_efetivados.adicionar(atual_candidato.candidato)
+                atual_candidato = atual_candidato.proximo
+            atual_curso = atual_curso.proximo
+        return lista_efetivados
+
+    def gerenciar_aprovacao(self, lista_aprovados):
+        print("\n--- Gerenciamento de Aprovação ---")
+        candidatos_efetivados = self.gerar_lista_efetivados()
+        if not candidatos_efetivados.inicio:
+            print("Não há candidatos efetivados para o processo de aprovação.")
+            return
+
+        atual_candidato = candidatos_efetivados.inicio
+        while atual_candidato:
+            c = atual_candidato.candidato
+            print(f"\nCandidato: {c.nome} | Inscrição: {c.numero_inscricao} | Curso: {c.curso}")
+            aprovado = input("Aprovar este candidato? (s/n): ").lower()
+            if aprovado == 's':
+                lista_aprovados.adicionar_aprovado(c.nome, c.cpf, c.curso)
+            atual_candidato = atual_candidato.proximo
     
 class CandidatosEfetivados:
     def __init__(self, candidato):
         self.candidato = candidato
         self.proximo = None
+        
+class ListaEfetivados:
+    def __init__(self):
+        self.inicio = None
+
+    def adicionar(self, candidato):
+        novo_no = CandidatosEfetivados(candidato)
+        if not self.inicio:
+            self.inicio = novo_no
+        else:
+            atual = self.inicio
+            while atual.proximo:
+                atual = atual.proximo
+            atual.proximo = novo_no
+
+    def listar_por_sala(self):
+        if not self.inicio:
+            print("\nNenhum candidato com inscrição efetivada para alocar em salas.")
+            return
+
+        print("\n--- Alocação de Candidatos por Sala ---")
+        sala_numero = 1
+        contador_sala = 0
+        atual = self.inicio
+
+        while atual:
+            if contador_sala == 0:
+                print(f"\nSala {sala_numero}:")
+
+            print(f" - {atual.candidato.nome} (Inscrição: {atual.candidato.numero_inscricao})")
+
+            contador_sala += 1
+            if contador_sala == 30:
+                sala_numero += 1
+                contador_sala = 0
+
+            atual = atual.proximo
+
+class AlunoAprovado:
+    def __init__(self, nome, cpf, curso):
+        self.nome = nome
+        self.cpf = cpf
+        self.curso = curso
+        self.proximo = None
+
+class ListaAprovados:
+    def __init__(self):
+        self.inicio = None
+        self.total_aprovados_ia = 0
+        self.total_aprovados_esg = 0
+
+    def adicionar_aprovado(self, nome, cpf, curso):
+        if curso == "Tecnologia em Inteligência Artificial" and self.total_aprovados_ia >= 40:
+            print(f"⚠️ Limite de 40 vagas para Inteligência Artificial atingido. {nome} não pode ser aprovado(a).")
+            return
+        if curso == "Gestão da Sustentabilidade Ambiental e Governança Corporativa (ESG)" and self.total_aprovados_esg >= 40:
+            print(f"⚠️ Limite de 40 vagas para Gestão ESG atingido. {nome} não pode ser aprovado(a).")
+
+        novo_aprovado = AlunoAprovado(nome, cpf, curso)
+        if not self.inicio:
+            self.inicio = novo_aprovado
+        else:
+            atual = self.inicio
+            while atual.proximo:
+                atual = atual.proximo
+            atual.proximo = novo_aprovado
+
+        if curso == "Tecnologia em Inteligência Artificial":
+            self.total_aprovados_ia += 1
+        else:
+            atual = self.total_aprovados_esg += 1
+        print("✅ {nome} aprovado(a) no curso de {curso}!")
+
+    def listar_aprovados(self):
+        if not self.inicio:
+            print("\Nenhum aluno aprovado.")
+            return
+
+        print("\n--- Lista de Alunos Aprovados ---")
+        atual = self.inicio
+        while atual:
+            print(f"- Nome: {atual.nome} | CPF: {atual.cpf} | Curso: {atual.curso}")
+            atual = atual.proximo
+
+    
