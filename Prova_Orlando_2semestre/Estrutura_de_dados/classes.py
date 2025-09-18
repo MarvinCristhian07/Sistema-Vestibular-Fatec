@@ -408,7 +408,7 @@ class ListaAprovados:
         if curso == "Tecnologia em Inteligência Artificial":
             self.total_aprovados_ia += 1
         else:
-            atual = self.total_aprovados_esg += 1
+            self.total_aprovados_esg += 1
         print("✅ {nome} aprovado(a) no curso de {curso}!")
 
     def listar_aprovados(self):
@@ -421,5 +421,3 @@ class ListaAprovados:
         while atual:
             print(f"- Nome: {atual.nome} | CPF: {atual.cpf} | Curso: {atual.curso}")
             atual = atual.proximo
-
-    
