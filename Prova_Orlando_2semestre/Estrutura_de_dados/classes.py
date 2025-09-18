@@ -84,7 +84,7 @@ class ListaCandidatos:
 
         while True:
             cpf = input("Entre com o CPF do candidato (apenas números): ").strip()
-            if cpf.len() == 11:
+            if len(cpf) == 11:
                 break
             print("⚠️ O CPF deve ter exatamente 11 dígitos!")
             if is_digit(cpf):
@@ -264,3 +264,28 @@ class ListaCandidatos:
             print("-" * 30)
 
             atual_curso = atual_curso.proximo
+
+    def calcular_salas_necessarias(self):
+        total_efetivados = 0
+        atual_curso = self.lista_cursos
+        while atual_curso:
+            atual_candidato = atual_curso.lista_candidatos
+            while atual_candidato:
+                if atual_candidato.candidato.pago:
+                    total_efetivados += 1
+                atual_candidato = atual_candidato.proximo
+            atual_curso = atual_curso.proximo
+        
+        salas = total_efetivados // 30
+        if total_efetivados % 30 > 0:
+            salas += 1
+
+        print(f"\n--- Preparação para o Vestibular ---")
+        print(f"Total de candidatos com inscrição efetivada: {total_efetivados}")
+        print(f"Número de salas necessárias (capacidade 30): {salas}")
+        return salas
+    
+class CandidatosEfetivados:
+    def __init__(self, candidato):
+        self.candidato = candidato
+        self.proximo = None
