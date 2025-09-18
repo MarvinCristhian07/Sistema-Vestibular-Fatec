@@ -1,5 +1,5 @@
 from Estrutura_de_dados.classes import *
-from Estrutura_de_dados.aplicadores import ListaAplicadores
+from Estrutura_de_dados.aplicadores import *
 
 lista_candidatos = ListaCandidatos()
 lista_aplicadores = ListaAplicadores()
@@ -59,6 +59,9 @@ while True:
             cargo_aplicador = "Porteiro(a)"
         else:
             print("⚠️ Opção inválida!")
+        lista_aplicadores.adicionar_aplicador(nome_aplicador, cargo_aplicador)
+    elif escolha == "6":
+        lista_aplicadores.listar_aplicadores()
     elif escolha == "0":
         print("\nSaindo do sistema...")
         break
