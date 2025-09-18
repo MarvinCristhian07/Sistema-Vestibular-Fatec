@@ -413,7 +413,7 @@ class ListaAprovados:
 
     def listar_aprovados(self):
         if not self.inicio:
-            print("\Nenhum aluno aprovado.")
+            print("\nNenhum aluno aprovado.")
             return
 
         print("\n--- Lista de Alunos Aprovados ---")
