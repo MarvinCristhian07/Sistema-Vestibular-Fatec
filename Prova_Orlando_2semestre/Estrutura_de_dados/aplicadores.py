@@ -26,7 +26,7 @@ class ListaAplicadores:
             print("Nenhum aplicador cadastrado.")
             return
 
-        print("\n==== Lista de Aplicadores ====")
+        print("\n==== Lista de Funcionários ====")
         atual = self.inicio
         while atual:
             print(f"- Nome: {atual.nome} | Cargo: {atual.cargo}")
